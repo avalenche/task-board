@@ -8,19 +8,23 @@ import {
   DialogActions,
   Dialog,
   TextField,
+  CircularProgress,
+  Snackbar,
 } from "@mui/material";
+import { useState, useEffect } from "react";
 
-import { createTaskList, deleteTaskList } from "../../api/taskListApi";
-import { TaskList } from "./components/TaskList";
-import styles from "./TaskBoard.module.scss";
-import { useState } from "react";
-import { useAppDispatch } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
 import { addTaskList } from "../../features/taskList/taskListSlice";
 import { TaskListType } from "../../types";
+import { deleteTask, getTasks } from "../../features/task/taskSlice";
+import { TaskList } from "./components/TaskList";
+import styles from "./TaskBoard.module.scss";
 
 export const TaskBoard = () => {
   const [openAddTaskList, setOpenAddTaskList] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
   const dispatch = useAppDispatch();
+  const { deleting, deleteError } = useAppSelector((state) => state.tasks);
   // const newTask: Omit<Task, "id"> = {
   //   name: "Test 23",
   //   description: "Test 23",
@@ -32,8 +36,18 @@ export const TaskBoard = () => {
   //   deleteTask(12);
   // };
 
+  useEffect(() => {
+    if (deleting === "succeeded") {
+      setSnackbarMessage("Task deleted successfully!");
+      dispatch(getTasks()); // Refresh tasks
+      console.log("delete Task, from TaskBoard");
+    } else if (deleting === "failed") {
+      setSnackbarMessage(deleteError || "Failed to delete task");
+    }
+  }, [deleteError, deleting, dispatch]);
+
   const handleDelete = () => {
-    deleteTaskList(39);
+    dispatch(deleteTaskList(14));
   };
   const handleCloseAddList = () => {
     setOpenAddTaskList(false);
@@ -56,8 +70,16 @@ export const TaskBoard = () => {
       <header className={styles.header}>
         <h2>My Task Board</h2>
         <Stack spacing={2} direction="row">
-          <Button variant="outlined" onClick={handleDelete}>
-            History
+          <Button
+            variant="outlined"
+            onClick={handleDelete}
+            disabled={deleting === "loading"}
+          >
+            {deleting === "loading" ? (
+              <CircularProgress size={24} />
+            ) : (
+              "History"
+            )}
           </Button>
           <Button variant="contained" onClick={handleOpenAddList}>
             + Create new list
@@ -95,6 +117,13 @@ export const TaskBoard = () => {
           <Button type="submit">Add new list</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar
+        open={Boolean(snackbarMessage)}
+        autoHideDuration={4000}
+        onClose={() => setSnackbarMessage("")}
+        message={snackbarMessage}
+      />
     </div>
   );
 };

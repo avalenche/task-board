@@ -10,20 +10,27 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import EventIcon from "@mui/icons-material/Event";
+import { useAppDispatch } from "../../../../store";
 import { Task } from "../../../../types";
 import { format } from "date-fns";
+import { deleteTask } from "../../../../features/task/taskSlice";
 interface TaskCardData {
   data: Task[];
 }
 
 export const TaskCard = (data: TaskCardData) => {
+  const dispatch = useAppDispatch();
+
   return (
     <>
       {data.data.map((task) => (
         <Card variant="outlined" key={task.id}>
           <CardHeader
             action={
-              <IconButton aria-label="settings">
+              <IconButton
+                aria-label="settings"
+                onClick={() => dispatch(deleteTask(task.id))}
+              >
                 <MoreVertIcon />
               </IconButton>
             }

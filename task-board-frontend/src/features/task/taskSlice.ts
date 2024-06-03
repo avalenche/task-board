@@ -1,12 +1,35 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TaskState, Task } from "../../types";
-import { fetchTasks } from "../../api/taskApi";
+import {
+  fetchDeleteTask,
+  fetchTasks,
+  fetchCreateTask,
+} from "../../api/taskApi";
 
 const initialState: TaskState = {
   tasks: [],
   loading: "idle",
+  deleting: "idle",
+  addLoading: "idle",
+  deleteError: null,
 };
 const getTasks = createAsyncThunk<Task[]>("tasks/getTasks", fetchTasks);
+
+const deleteTask = createAsyncThunk<number, number>(
+  "tasks/deleteTask",
+  async (id: number) => {
+    await fetchDeleteTask(id);
+    return id;
+  }
+);
+
+const addTask = createAsyncThunk<Task, Omit<Task, "id">>(
+  "tasks/addTask",
+  async (newTask) => {
+    const response = await fetchCreateTask(newTask);
+    return response;
+  }
+);
 
 const taskSlice = createSlice({
   name: "tasks",
@@ -26,9 +49,9 @@ const taskSlice = createSlice({
         state.tasks[index] = action.payload;
       }
     },
-    deleteTask(state, action: PayloadAction<number>) {
-      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
-    },
+    // deleteTask(state, action: PayloadAction<number>) {
+    //   state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+    // },
     // Add other reducers for editing, removing, and moving tasks
   },
   extraReducers: (builder) => {
@@ -42,9 +65,31 @@ const taskSlice = createSlice({
     builder.addCase(getTasks.rejected, (state) => {
       state.loading = "failed";
     });
+    builder.addCase(deleteTask.pending, (state) => {
+      state.deleting = "loading";
+    });
+    builder.addCase(deleteTask.fulfilled, (state, action) => {
+      state.tasks = state.tasks.filter((task) => task.id !== action.payload);
+      state.deleting = "succeeded";
+      state.deleteError = null;
+    });
+    builder.addCase(deleteTask.rejected, (state, action) => {
+      state.deleting = "failed";
+      state.deleteError = action.error.message || "Failed to delete task";
+    });
+    builder.addCase(addTask.pending, (state) => {
+      state.addLoading = "loading";
+    });
+    builder.addCase(addTask.fulfilled, (state, action) => {
+      state.tasks.push(action.payload);
+      state.addLoading = "succeeded";
+    });
+    builder.addCase(addTask.rejected, (state) => {
+      state.addLoading = "failed";
+    });
   },
 });
 
 export const { actions, reducer } = taskSlice;
-export { getTasks };
+export { getTasks, deleteTask, addTask };
 export default taskSlice.reducer;

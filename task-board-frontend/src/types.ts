@@ -1,3 +1,5 @@
+import { PayloadAction } from "@reduxjs/toolkit";
+
 export interface Task {
   id: number;
   idTaskList: number;
@@ -10,6 +12,9 @@ export interface Task {
 export interface TaskState {
   tasks: Task[];
   loading: "idle" | "loading" | "succeeded" | "failed";
+  deleting: "idle" | "loading" | "succeeded" | "failed";
+  addLoading: "idle" | "loading" | "succeeded" | "failed";
+  deleteError: string | null;
 }
 
 export interface TaskListType {

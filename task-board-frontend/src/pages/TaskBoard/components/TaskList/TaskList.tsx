@@ -4,12 +4,13 @@ import { Button, IconButton, Stack } from "@mui/material";
 
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../../../store";
-import { getTasks } from "../../../../features/task/taskSlice";
+import { getTasks, addTask } from "../../../../features/task/taskSlice";
 import { useEffect } from "react";
 
 import { getTaskList } from "../../../../features/taskList/taskListSlice";
 import { TaskCard } from "../TaskCard";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Task } from "../../../../types";
 
 export const TaskList = () => {
   const dispatch = useAppDispatch();
@@ -21,7 +22,15 @@ export const TaskList = () => {
   useEffect(() => {
     dispatch(getTasks());
     dispatch(getTaskList());
+    console.log("useefect TaskList, dispatch");
   }, [dispatch]);
+
+  const newTask: Omit<Task, "id" & "idTaskList"> = {
+    name: "Test 3",
+    description: "Test 23",
+    dueDate: "2025-05-31",
+    priority: "Main",
+  };
 
   return (
     <Stack spacing={2} direction="row">
@@ -36,13 +45,18 @@ export const TaskList = () => {
           >
             <p>{list.name}</p>
             <div>
-              {tasks.filter((elem) => elem.name === "Test 23").length}
+              {tasks.filter((elem) => elem.idTaskList === list.id).length}
               <IconButton>
                 <MoreVertIcon />
               </IconButton>
             </div>
           </div>
-          <Button variant="outlined" onClick={() => console.log("I am work")}>
+          <Button
+            variant="outlined"
+            onClick={() => {
+              dispatch(addTask({ ...newTask, idTaskList: list.id }));
+            }}
+          >
             Add new Card
           </Button>
           <TaskCard data={tasks} />
