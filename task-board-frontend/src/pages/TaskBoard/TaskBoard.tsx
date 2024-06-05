@@ -86,6 +86,7 @@ export const TaskBoard = () => {
           </Button>
         </Stack>
       </header>
+
       <main>
         <TaskList />
       </main>

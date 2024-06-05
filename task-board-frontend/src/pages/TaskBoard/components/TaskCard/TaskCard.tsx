@@ -1,3 +1,5 @@
+// src/pages/TaskBoard/components/TaskCard/TaskCard.tsx
+
 import {
   Button,
   Card,
@@ -18,12 +20,12 @@ interface TaskCardData {
   data: Task[];
 }
 
-export const TaskCard = (data: TaskCardData) => {
+export const TaskCard = ({ data }: TaskCardData) => {
   const dispatch = useAppDispatch();
 
   return (
     <>
-      {data.data.map((task) => (
+      {data.map((task) => (
         <Card variant="outlined" key={task.id}>
           <CardHeader
             action={

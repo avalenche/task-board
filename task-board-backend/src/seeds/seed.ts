@@ -1,10 +1,10 @@
 // seeds/seed.ts
 import { NestFactory } from "@nestjs/core";
-import { AppModule } from "../src/app.module";
-import { TaskService } from "../src/task/task.service";
-import { TaskListService } from "../src/task-list/task-list.service";
-import { CreateTaskDto } from "../src/task/dto/create-task.dto";
-import { CreateTaskListDto } from "../src/task-list/dto/create-task-list.dto";
+import { AppModule } from "../app.module";
+import { TaskService } from "../task/task.service";
+import { TaskListService } from "../task-list/task-list.service";
+import { CreateTaskDto } from "../task/dto/create-task.dto";
+import { CreateTaskListDto } from "../task-list/dto/create-task-list.dto";
 
 async function bootstrap() {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -21,14 +21,14 @@ async function bootstrap() {
       description: "This is the first task",
       dueDate: "2024-06-01",
       priority: "High",
-      taskListId: taskList.id,
+      idTaskList: taskList.id,
     },
     {
       name: "Second Task",
       description: "This is the second task",
       dueDate: "2024-06-02",
       priority: "Medium",
-      taskListId: taskList.id,
+      idTaskList: taskList.id,
     },
   ];
 

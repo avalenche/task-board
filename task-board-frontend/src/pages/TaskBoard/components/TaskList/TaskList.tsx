@@ -1,15 +1,13 @@
-// // src/pages/TaskBoard/components/LaskList/TaskList.tsx
-
-import { Button, IconButton, Stack } from "@mui/material";
-
+// src/pages/TaskBoard/components/TaskList/TaskList.tsx
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
+import { Button, IconButton, Stack } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+
 import { RootState, useAppDispatch } from "../../../../store";
 import { getTasks, addTask } from "../../../../features/task/taskSlice";
-import { useEffect } from "react";
-
 import { getTaskList } from "../../../../features/taskList/taskListSlice";
 import { TaskCard } from "../TaskCard";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import { Task } from "../../../../types";
 
 export const TaskList = () => {
@@ -22,7 +20,6 @@ export const TaskList = () => {
   useEffect(() => {
     dispatch(getTasks());
     dispatch(getTaskList());
-    console.log("useefect TaskList, dispatch");
   }, [dispatch]);
 
   const newTask: Omit<Task, "id" & "idTaskList"> = {
@@ -45,7 +42,7 @@ export const TaskList = () => {
           >
             <p>{list.name}</p>
             <div>
-              {tasks.filter((elem) => elem.idTaskList === list.id).length}
+              {tasks.filter((task) => task.idTaskList === list.id).length}
               <IconButton>
                 <MoreVertIcon />
               </IconButton>
@@ -59,7 +56,10 @@ export const TaskList = () => {
           >
             Add new Card
           </Button>
-          <TaskCard data={tasks} />
+
+          <TaskCard
+            data={tasks.filter((task) => task.idTaskList === list.id)}
+          />
         </Stack>
       ))}
     </Stack>

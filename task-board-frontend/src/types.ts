@@ -1,5 +1,3 @@
-import { PayloadAction } from "@reduxjs/toolkit";
-
 export interface Task {
   id: number;
   idTaskList: number;

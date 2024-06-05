@@ -18,6 +18,9 @@ export class Task {
   @Column()
   priority: string;
 
+  @Column()
+  idTaskList: number;
+
   @ManyToOne(() => TaskList, (taskList) => taskList.tasks)
   taskList: TaskList;
 }
