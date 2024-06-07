@@ -6,9 +6,13 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 
 import { RootState, useAppDispatch } from "../../../../store";
 import { getTasks, addTask } from "../../../../features/task/taskSlice";
-import { getTaskList } from "../../../../features/taskList/taskListSlice";
+import {
+  deleteTaskList,
+  getTaskList,
+} from "../../../../features/taskList/taskListSlice";
 import { TaskCard } from "../TaskCard";
 import { Task } from "../../../../types";
+import { PopoverMenu } from "../PopoverMenu";
 
 export const TaskList = () => {
   const dispatch = useAppDispatch();
@@ -43,9 +47,15 @@ export const TaskList = () => {
             <p>{list.name}</p>
             <div>
               {tasks.filter((task) => task.idTaskList === list.id).length}
-              <IconButton>
+              <PopoverMenu
+                id={list.id}
+                onEdit={() => console.log(list.id)}
+                onDelete={() => dispatch(deleteTaskList(list.id))}
+                onAdd={() => console.log("Add item")}
+              />
+              {/* <IconButton>
                 <MoreVertIcon />
-              </IconButton>
+              </IconButton> */}
             </div>
           </div>
           <Button

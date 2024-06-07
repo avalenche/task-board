@@ -6,16 +6,18 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  IconButton,
   Stack,
   Typography,
 } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+
 import EventIcon from "@mui/icons-material/Event";
+import { format } from "date-fns";
+
 import { useAppDispatch } from "../../../../store";
 import { Task } from "../../../../types";
-import { format } from "date-fns";
 import { deleteTask } from "../../../../features/task/taskSlice";
+import { PopoverMenu } from "../PopoverMenu";
+
 interface TaskCardData {
   data: Task[];
 }
@@ -29,12 +31,16 @@ export const TaskCard = ({ data }: TaskCardData) => {
         <Card variant="outlined" key={task.id}>
           <CardHeader
             action={
-              <IconButton
-                aria-label="settings"
-                onClick={() => dispatch(deleteTask(task.id))}
-              >
-                <MoreVertIcon />
-              </IconButton>
+              <PopoverMenu
+                id={task.id}
+                onEdit={() => {
+                  console.log(`Edit task ${task.id}`);
+                  // Add your edit logic here
+                }}
+                onDelete={() => {
+                  dispatch(deleteTask(task.id));
+                }}
+              />
             }
             title={task.name}
           />
@@ -43,17 +49,18 @@ export const TaskCard = ({ data }: TaskCardData) => {
               {task.description}
             </Typography>
 
-            <Typography color="text.secondary">
-              <Stack spacing={1} direction="row">
-                <EventIcon />
-                <span>{format(task.dueDate, "EEE, dd MMM")}</span>
-              </Stack>
-            </Typography>
+            <Stack spacing={1} direction="row">
+              <EventIcon />
+              <Typography component="span" color="text.secondary">
+                {format(new Date(task.dueDate), "EEE, dd MMM")}
+              </Typography>
+            </Stack>
           </CardContent>
           <CardActions>
             <Button
+              // variant="contained"
+              onClick={() => dispatch(deleteTask(task.id))}
               size="small"
-              onClick={() => console.log("Task Id: ", task.id)}
             >
               Learn More
             </Button>

@@ -1,11 +1,18 @@
 // src/features/taskList/taskListSlice.ts
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { TaskListType, TaskListState } from "../../types";
-import { fetchTaskList, createTaskList } from "../../api/taskListApi";
+import {
+  fetchTaskList,
+  createTaskList,
+  fetchDeleteTaskLIst,
+} from "../../api/taskListApi";
 
 const initialState: TaskListState = {
   taskLists: [],
   loading: "idle",
+  deleting: "idle",
+  addLoading: "idle",
+  deleteError: null,
 };
 
 const getTaskList = createAsyncThunk<TaskListType[]>(
@@ -18,6 +25,14 @@ const addTaskList = createAsyncThunk<TaskListType, Omit<TaskListType, "id">>(
   async (newTaskList) => {
     const response = await createTaskList(newTaskList);
     return response;
+  }
+);
+
+const deleteTaskList = createAsyncThunk<number, number>(
+  "taskList/deleteTaskList",
+  async (id: number) => {
+    await fetchDeleteTaskLIst(id);
+    return id;
   }
 );
 
@@ -60,11 +75,17 @@ const taskListSlice = createSlice({
       state.taskLists.push(action.payload);
       // state.loading = "succeeded";
     });
+    builder.addCase(deleteTaskList.fulfilled, (state, action) => {
+      state.deleting = "succeeded";
+      state.taskLists = state.taskLists.filter(
+        (taskList) => taskList.id !== action.payload
+      );
+    });
   },
 });
 
 export const { actions, reducer } = taskListSlice;
 
-export { getTaskList, addTaskList };
+export { getTaskList, addTaskList, deleteTaskList };
 
 export default taskListSlice.reducer;

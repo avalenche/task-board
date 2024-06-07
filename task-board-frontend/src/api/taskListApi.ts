@@ -18,7 +18,7 @@ export const createTaskList = async (taskList: Omit<TaskListType, "id">) => {
   }
 };
 
-export const deleteTaskList = async (id: number) => {
+export const fetchDeleteTaskLIst = async (id: number) => {
   const response = await axios.delete(`${API_URL}/${id}`);
   return response;
 };
