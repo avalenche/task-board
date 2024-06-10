@@ -28,3 +28,13 @@ export const fetchDeleteTask = async (id: number) => {
     throw error;
   }
 };
+
+export const fetchUpdateTask = async (task: Partial<Task>) => {
+  try {
+    const response = await axios.patch(`${API_URL}/${task.id}`, task);
+    return response.data;
+  } catch (error) {
+    console.error("Error update Task: ", error);
+    throw error;
+  }
+};

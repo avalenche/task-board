@@ -22,8 +22,8 @@ export interface TaskListType {
 
 export interface TaskListState {
   taskLists: TaskListType[];
-  loading: "idle" | "loading" | "succeeded" | "failed";
-  deleting: "idle" | "loading" | "succeeded" | "failed";
+  getLoading: "idle" | "loading" | "succeeded" | "failed";
+  delLoading: "idle" | "loading" | "succeeded" | "failed";
   addLoading: "idle" | "loading" | "succeeded" | "failed";
   deleteError: string | null;
 }

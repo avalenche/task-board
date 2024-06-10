@@ -7,6 +7,8 @@ import {
   Param,
   Patch,
   Delete,
+  ParseIntPipe,
+  NotFoundException,
 } from "@nestjs/common";
 import { TaskService } from "./task.service";
 import { CreateTaskDto } from "./dto/create-task.dto";
@@ -27,17 +29,21 @@ export class TaskController {
   }
 
   @Get(":id")
-  findOne(@Param("id") id: number) {
+  findOne(@Param("id", ParseIntPipe) id: number) {
     return this.taskService.findOne(id);
   }
 
   @Patch(":id")
-  update(@Param("id") id: number, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.taskService.update(id, updateTaskDto);
+  async update(@Param("id") id: number, @Body() updateTaskDto: UpdateTaskDto) {
+    const updatedTask = await this.taskService.update(id, updateTaskDto);
+    if (!updatedTask) {
+      throw new NotFoundException(`Task with ID ${id} not found`);
+    }
+    return updatedTask;
   }
 
   @Delete(":id")
-  remove(@Param("id") id: number) {
+  remove(@Param("id", ParseIntPipe) id: number) {
     return this.taskService.remove(id);
   }
 }

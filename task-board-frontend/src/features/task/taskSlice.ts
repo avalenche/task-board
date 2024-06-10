@@ -4,6 +4,7 @@ import {
   fetchDeleteTask,
   fetchTasks,
   fetchCreateTask,
+  fetchUpdateTask,
 } from "../../api/taskApi";
 
 const initialState: TaskState = {
@@ -27,6 +28,14 @@ const addTask = createAsyncThunk<Task, Omit<Task, "id">>(
   "tasks/addTask",
   async (newTask) => {
     const response = await fetchCreateTask(newTask);
+    return response;
+  }
+);
+
+const updateTask = createAsyncThunk<Task, Partial<Task>>(
+  "tasks/updateTask",
+  async (task) => {
+    const response = await fetchUpdateTask(task);
     return response;
   }
 );
@@ -87,9 +96,17 @@ const taskSlice = createSlice({
     builder.addCase(addTask.rejected, (state) => {
       state.addLoading = "failed";
     });
+    builder.addCase(updateTask.fulfilled, (state, action) => {
+      const index = state.tasks.findIndex(
+        (task) => task.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.tasks[index] = action.payload;
+      }
+    });
   },
 });
 
 export const { actions, reducer } = taskSlice;
-export { getTasks, deleteTask, addTask };
+export { getTasks, deleteTask, addTask, updateTask };
 export default taskSlice.reducer;

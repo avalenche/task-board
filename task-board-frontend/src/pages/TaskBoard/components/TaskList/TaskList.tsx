@@ -1,8 +1,7 @@
 // src/pages/TaskBoard/components/TaskList/TaskList.tsx
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
-import { Button, IconButton, Stack } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
+import { Button, Stack } from "@mui/material";
 
 import { RootState, useAppDispatch } from "../../../../store";
 import { getTasks, addTask } from "../../../../features/task/taskSlice";
@@ -27,10 +26,11 @@ export const TaskList = () => {
   }, [dispatch]);
 
   const newTask: Omit<Task, "id" & "idTaskList"> = {
-    name: "Test 3",
-    description: "Test 23",
-    dueDate: "2025-05-31",
-    priority: "Main",
+    name: "Add new menu",
+    description:
+      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing",
+    dueDate: "2024-08-21",
+    priority: "Medium",
   };
 
   return (
@@ -51,11 +51,10 @@ export const TaskList = () => {
                 id={list.id}
                 onEdit={() => console.log(list.id)}
                 onDelete={() => dispatch(deleteTaskList(list.id))}
-                onAdd={() => console.log("Add item")}
+                onAdd={() =>
+                  dispatch(addTask({ ...newTask, idTaskList: list.id }))
+                }
               />
-              {/* <IconButton>
-                <MoreVertIcon />
-              </IconButton> */}
             </div>
           </div>
           <Button

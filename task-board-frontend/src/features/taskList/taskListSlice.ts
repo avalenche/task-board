@@ -9,8 +9,8 @@ import {
 
 const initialState: TaskListState = {
   taskLists: [],
-  loading: "idle",
-  deleting: "idle",
+  getLoading: "idle",
+  delLoading: "idle",
   addLoading: "idle",
   deleteError: null,
 };
@@ -62,21 +62,27 @@ const taskListSlice = createSlice({
   },
   extraReducers(builder) {
     builder.addCase(getTaskList.pending, (state) => {
-      state.loading = "loading";
+      state.getLoading = "loading";
     });
     builder.addCase(getTaskList.fulfilled, (state, action) => {
       state.taskLists = action.payload;
-      state.loading = "succeeded";
+      state.getLoading = "succeeded";
     });
     builder.addCase(getTaskList.rejected, (state) => {
-      state.loading = "failed";
+      state.getLoading = "failed";
     });
     builder.addCase(addTaskList.fulfilled, (state, action) => {
       state.taskLists.push(action.payload);
-      // state.loading = "succeeded";
+      state.addLoading = "succeeded";
+    });
+    builder.addCase(addTaskList.pending, (state) => {
+      state.addLoading = "loading";
+    });
+    builder.addCase(addTaskList.rejected, (state) => {
+      state.addLoading = "failed";
     });
     builder.addCase(deleteTaskList.fulfilled, (state, action) => {
-      state.deleting = "succeeded";
+      state.delLoading = "succeeded";
       state.taskLists = state.taskLists.filter(
         (taskList) => taskList.id !== action.payload
       );

@@ -5,6 +5,9 @@ import EditNoteIcon from "@mui/icons-material/EditNote";
 import AddIcon from "@mui/icons-material/Add";
 import styles from "./PopoverMenu.module.scss";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../../store";
+import { selectIsTasks } from "../../../../selectors";
 
 interface PopoverMenuProps {
   id: number;
@@ -20,6 +23,8 @@ export const PopoverMenu = ({
   onAdd,
 }: PopoverMenuProps) => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+  const isTasks = useSelector((state: RootState) => selectIsTasks(id)(state));
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -68,7 +73,7 @@ export const PopoverMenu = ({
           </Button>
           {onAdd && (
             <Button
-              onClick={onEdit}
+              onClick={onAdd}
               size="small"
               sx={{
                 color: "#003d3d",
@@ -83,7 +88,7 @@ export const PopoverMenu = ({
             </Button>
           )}
           <Button
-            // disabled={id ? true : false}
+            disabled={isTasks}
             onClick={onDelete}
             size="small"
             sx={{

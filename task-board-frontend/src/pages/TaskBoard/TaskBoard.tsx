@@ -47,7 +47,7 @@ export const TaskBoard = () => {
   }, [deleteError, deleting, dispatch]);
 
   const handleDelete = () => {
-    dispatch(deleteTaskList(14));
+    dispatch(deleteTask(57));
   };
   const handleCloseAddList = () => {
     setOpenAddTaskList(false);
