@@ -58,7 +58,10 @@ export const PopoverMenu = ({
       >
         <div className={styles.popoverWraper}>
           <Button
-            onClick={onEdit}
+            onClick={() => {
+              handleClose();
+              onEdit();
+            }}
             size="small"
             sx={{
               color: "#003d3d",
@@ -73,7 +76,10 @@ export const PopoverMenu = ({
           </Button>
           {onAdd && (
             <Button
-              onClick={onAdd}
+              onClick={() => {
+                handleClose();
+                onAdd();
+              }}
               size="small"
               sx={{
                 color: "#003d3d",

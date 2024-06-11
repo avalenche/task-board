@@ -1,7 +1,6 @@
 // src/pages/TaskBoard/components/TaskCard/TaskCard.tsx
 
 import {
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -41,7 +40,7 @@ export const TaskCard = ({ data }: TaskCardData) => {
   const handleChange = (taskId: number, event: SelectChangeEvent<number>) => {
     const newTaskListId = +event.target.value;
     setMoveList("");
-    dispatch(updateTask({ id: taskId, idTaskList: newTaskListId }))
+    dispatch(updateTask({ id: taskId, idTaskList: newTaskListId }));
   };
   return (
     <>

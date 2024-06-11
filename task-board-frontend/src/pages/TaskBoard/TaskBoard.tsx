@@ -1,27 +1,24 @@
 // src/pages/TaskBoard/TaskBoard.tsx
 
-import {
-  Stack,
-  Button,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Dialog,
-  TextField,
-  CircularProgress,
-  Snackbar,
-} from "@mui/material";
+import { Stack, Button, CircularProgress, Snackbar } from "@mui/material";
 import { useState, useEffect } from "react";
 
 import { useAppDispatch, useAppSelector } from "../../store";
-import { addTaskList } from "../../features/taskList/taskListSlice";
+import {
+  addTaskList,
+  updateTaskList,
+} from "../../features/taskList/taskListSlice";
 import { TaskListType } from "../../types";
 import { deleteTask, getTasks } from "../../features/task/taskSlice";
 import { TaskList } from "./components/TaskList";
 import styles from "./TaskBoard.module.scss";
+import { TaskListDialog } from "./components/TaskListDialog";
 
 export const TaskBoard = () => {
-  const [openAddTaskList, setOpenAddTaskList] = useState(false);
+  const [openTaskListDialog, setOpenTaskListDialog] = useState(false);
+  const [editingTaskList, setEditingTaskList] = useState<TaskListType | null>(
+    null
+  );
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const dispatch = useAppDispatch();
   const { deleting, deleteError } = useAppSelector((state) => state.tasks);
@@ -40,7 +37,6 @@ export const TaskBoard = () => {
     if (deleting === "succeeded") {
       setSnackbarMessage("Task deleted successfully!");
       dispatch(getTasks()); // Refresh tasks
-      console.log("delete Task, from TaskBoard");
     } else if (deleting === "failed") {
       setSnackbarMessage(deleteError || "Failed to delete task");
     }
@@ -49,20 +45,30 @@ export const TaskBoard = () => {
   const handleDelete = () => {
     dispatch(deleteTask(57));
   };
-  const handleCloseAddList = () => {
-    setOpenAddTaskList(false);
+  const handleCloseTaskListDialog = () => {
+    setOpenTaskListDialog(false);
+    setEditingTaskList(null);
   };
 
-  const handleOpenAddList = () => {
-    setOpenAddTaskList(true);
+  const handleOpenAddTaskList = () => {
+    setOpenTaskListDialog(true);
   };
 
-  const handleAddNewList = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleEditTaskList = (taskList: TaskListType) => {
+    setEditingTaskList(taskList);
+    setOpenTaskListDialog(true);
+  };
+
+  const handleTaskListSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries((formData as any).entries());
-    dispatch(addTaskList(formJson as Omit<TaskListType, "id">));
-    handleCloseAddList();
+    if (editingTaskList) {
+      dispatch(updateTaskList({ ...editingTaskList, ...formJson }));
+    } else {
+      dispatch(addTaskList(formJson as Omit<TaskListType, "id">));
+    }
+    handleCloseTaskListDialog();
   };
 
   return (
@@ -81,44 +87,21 @@ export const TaskBoard = () => {
               "History"
             )}
           </Button>
-          <Button variant="contained" onClick={handleOpenAddList}>
+          <Button variant="contained" onClick={handleOpenAddTaskList}>
             + Create new list
           </Button>
         </Stack>
       </header>
 
       <main>
-        <TaskList />
+        <TaskList onEditTaskList={handleEditTaskList} />
       </main>
-
-      <Dialog
-        open={openAddTaskList}
-        onClose={handleCloseAddList}
-        PaperProps={{
-          component: "form",
-          onSubmit: handleAddNewList,
-        }}
-      >
-        <DialogTitle>Please add new List</DialogTitle>
-        <DialogContent>
-          <TextField
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="name"
-            label="List name"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseAddList}>Cancel</Button>
-          <Button type="submit">Add new list</Button>
-        </DialogActions>
-      </Dialog>
-
+      <TaskListDialog
+        isOpen={openTaskListDialog}
+        onClose={handleCloseTaskListDialog}
+        onSubmit={handleTaskListSubmit}
+        initialData={editingTaskList}
+      />
       <Snackbar
         open={Boolean(snackbarMessage)}
         autoHideDuration={4000}

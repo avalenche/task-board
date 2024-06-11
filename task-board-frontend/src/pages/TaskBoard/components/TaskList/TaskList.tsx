@@ -18,12 +18,16 @@ import {
   getTaskList,
 } from "../../../../features/taskList/taskListSlice";
 import { TaskCard } from "../TaskCard";
-import { Task } from "../../../../types";
+import { Task, TaskListType } from "../../../../types";
 import { PopoverMenu } from "../PopoverMenu";
 
 const priorytyOption = ["Low", "Medium", "Hight"];
 
-export const TaskList = () => {
+interface TaskListProps {
+  onEditTaskList: (taskList: TaskListType) => void;
+}
+
+export const TaskList = ({ onEditTaskList }: TaskListProps) => {
   const dispatch = useAppDispatch();
   const tasksList = useSelector(
     (state: RootState) => state.taskLists.taskLists
@@ -44,7 +48,7 @@ export const TaskList = () => {
     setCurrentTaskListId(null);
   };
 
-  const handleOpenAddList = (taskListId: number) => {
+  const handleOpenAddTask = (taskListId: number) => {
     setCurrentTaskListId(taskListId);
     setOpenAddTask(true);
   };
@@ -82,10 +86,11 @@ export const TaskList = () => {
                 {tasks.filter((task) => task.idTaskList === list.id).length}
                 <PopoverMenu
                   id={list.id}
-                  onEdit={() => console.log(list.id)}
+                  onEdit={() => onEditTaskList(list)}
                   onDelete={() => dispatch(deleteTaskList(list.id))}
-                  onAdd={() =>
-                    dispatch(addTask({ ...newTask, idTaskList: list.id }))
+                  onAdd={
+                    () => handleOpenAddTask(list.id)
+                    // dispatch(addTask({ ...newTask, idTaskList: list.id }))
                   }
                 />
               </div>
@@ -93,7 +98,7 @@ export const TaskList = () => {
             <Button
               variant="outlined"
               onClick={() => {
-                handleOpenAddList(list.id);
+                handleOpenAddTask(list.id);
                 // dispatch(addTask({ ...newTask, idTaskList: list.id }));
               }}
             >
@@ -117,6 +122,7 @@ export const TaskList = () => {
         <DialogTitle>Please add new Task</DialogTitle>
         <DialogContent>
           <TextField
+            size="small"
             autoFocus
             required
             margin="dense"
@@ -128,6 +134,7 @@ export const TaskList = () => {
             variant="standard"
           />
           <TextField
+            size="small"
             margin="dense"
             id="description"
             name="description"
@@ -141,7 +148,6 @@ export const TaskList = () => {
             margin="dense"
             id="dueDate"
             name="dueDate"
-            label="Date to do"
             type="date"
             fullWidth
             variant="standard"
@@ -152,6 +158,7 @@ export const TaskList = () => {
             fullWidth
             name="priority"
             defaultValue="Low"
+            size="small"
             SelectProps={{
               native: true,
             }}

@@ -74,6 +74,7 @@ const taskSlice = createSlice({
     builder.addCase(getTasks.rejected, (state) => {
       state.loading = "failed";
     });
+
     builder.addCase(deleteTask.pending, (state) => {
       state.deleting = "loading";
     });
@@ -86,6 +87,7 @@ const taskSlice = createSlice({
       state.deleting = "failed";
       state.deleteError = action.error.message || "Failed to delete task";
     });
+
     builder.addCase(addTask.pending, (state) => {
       state.addLoading = "loading";
     });
@@ -96,6 +98,7 @@ const taskSlice = createSlice({
     builder.addCase(addTask.rejected, (state) => {
       state.addLoading = "failed";
     });
+
     builder.addCase(updateTask.fulfilled, (state, action) => {
       const index = state.tasks.findIndex(
         (task) => task.id === action.payload.id

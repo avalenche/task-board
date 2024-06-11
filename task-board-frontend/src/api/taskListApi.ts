@@ -18,7 +18,17 @@ export const createTaskList = async (taskList: Omit<TaskListType, "id">) => {
   }
 };
 
-export const fetchDeleteTaskLIst = async (id: number) => {
+export const fetchDeleteTaskList = async (id: number) => {
   const response = await axios.delete(`${API_URL}/${id}`);
   return response;
+};
+
+export const fetchUpdateTaskList = async (taskList: Partial<TaskListType>) => {
+  try {
+    const response = await axios.patch(`${API_URL}/${taskList.id}`, taskList);
+    return response.data;
+  } catch (error) {
+    console.error("Error update Task: ", error);
+    throw error;
+  }
 };

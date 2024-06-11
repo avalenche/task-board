@@ -4,7 +4,8 @@ import { TaskListType, TaskListState } from "../../types";
 import {
   fetchTaskList,
   createTaskList,
-  fetchDeleteTaskLIst,
+  fetchDeleteTaskList,
+  fetchUpdateTaskList,
 } from "../../api/taskListApi";
 
 const initialState: TaskListState = {
@@ -31,8 +32,15 @@ const addTaskList = createAsyncThunk<TaskListType, Omit<TaskListType, "id">>(
 const deleteTaskList = createAsyncThunk<number, number>(
   "taskList/deleteTaskList",
   async (id: number) => {
-    await fetchDeleteTaskLIst(id);
+    await fetchDeleteTaskList(id);
     return id;
+  }
+);
+const updateTaskList = createAsyncThunk<TaskListType, Partial<TaskListType>>(
+  "taskList/updateTaskList",
+  async (taskList) => {
+    const response = await fetchUpdateTaskList(taskList);
+    return response;
   }
 );
 
@@ -71,6 +79,7 @@ const taskListSlice = createSlice({
     builder.addCase(getTaskList.rejected, (state) => {
       state.getLoading = "failed";
     });
+
     builder.addCase(addTaskList.fulfilled, (state, action) => {
       state.taskLists.push(action.payload);
       state.addLoading = "succeeded";
@@ -81,17 +90,35 @@ const taskListSlice = createSlice({
     builder.addCase(addTaskList.rejected, (state) => {
       state.addLoading = "failed";
     });
+
     builder.addCase(deleteTaskList.fulfilled, (state, action) => {
       state.delLoading = "succeeded";
       state.taskLists = state.taskLists.filter(
         (taskList) => taskList.id !== action.payload
       );
+      state.deleteError = null;
+    });
+    builder.addCase(deleteTaskList.pending, (state) => {
+      state.delLoading = "loading";
+    });
+    builder.addCase(deleteTaskList.rejected, (state, action) => {
+      state.delLoading = "failed";
+      state.deleteError = action.error.message || "Failed to delete task list";
+    });
+
+    builder.addCase(updateTaskList.fulfilled, (state, action) => {
+      const index = state.taskLists.findIndex(
+        (task) => task.id === action.payload.id
+      );
+      if (index !== -1) {
+        state.taskLists[index] = action.payload;
+      }
     });
   },
 });
 
 export const { actions, reducer } = taskListSlice;
 
-export { getTaskList, addTaskList, deleteTaskList };
+export { getTaskList, addTaskList, deleteTaskList, updateTaskList };
 
 export default taskListSlice.reducer;
