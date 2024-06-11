@@ -22,21 +22,11 @@ export const TaskBoard = () => {
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const dispatch = useAppDispatch();
   const { deleting, deleteError } = useAppSelector((state) => state.tasks);
-  // const newTask: Omit<Task, "id"> = {
-  //   name: "Test 23",
-  //   description: "Test 23",
-  //   dueDate: "2025-05-31",
-  //   priority: "Main",
-  // };
-
-  // const handleAdd = () => {
-  //   deleteTask(12);
-  // };
 
   useEffect(() => {
     if (deleting === "succeeded") {
       setSnackbarMessage("Task deleted successfully!");
-      dispatch(getTasks()); // Refresh tasks
+      dispatch(getTasks());
     } else if (deleting === "failed") {
       setSnackbarMessage(deleteError || "Failed to delete task");
     }

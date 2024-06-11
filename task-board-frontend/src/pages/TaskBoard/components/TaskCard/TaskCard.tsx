@@ -14,7 +14,7 @@ import {
   Stack,
   Typography,
 } from "@mui/material";
-
+import { useState } from "react";
 import EventIcon from "@mui/icons-material/Event";
 import { format } from "date-fns";
 
@@ -23,7 +23,7 @@ import { Task, TaskListType } from "../../../../types";
 import { deleteTask, updateTask } from "../../../../features/task/taskSlice";
 import { PopoverMenu } from "../PopoverMenu";
 import { RootState } from "../../../../store";
-import { useState } from "react";
+import { TaskCardDialog } from "../TaskCardDialog";
 import styles from "./TaskCard.module.scss";
 
 interface TaskCardData {
@@ -37,11 +37,38 @@ export const TaskCard = ({ data }: TaskCardData) => {
   );
   const [moveList, setMoveList] = useState("");
 
-  const handleChange = (taskId: number, event: SelectChangeEvent<number>) => {
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
+  const [currentTask, setCurrentTask] = useState<Task | null>(null);
+
+  const handleChangeTaskToList = (
+    taskId: number,
+    event: SelectChangeEvent<number>
+  ) => {
     const newTaskListId = +event.target.value;
     setMoveList("");
     dispatch(updateTask({ id: taskId, idTaskList: newTaskListId }));
   };
+
+  const handleOpenTaskDialog = (task: Task) => {
+    setCurrentTask(task);
+    setOpenTaskDialog(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    setOpenTaskDialog(false);
+    setCurrentTask(null);
+  };
+
+  const handleTaskSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const formJson = Object.fromEntries(formData.entries());
+    if (currentTask) {
+      dispatch(updateTask({ ...currentTask, ...formJson }));
+    }
+    handleCloseTaskDialog();
+  };
+
   return (
     <>
       {data.map((task) => {
@@ -54,10 +81,7 @@ export const TaskCard = ({ data }: TaskCardData) => {
               action={
                 <PopoverMenu
                   id={task.id}
-                  onEdit={() => {
-                    console.log(`Edit task ${task.id}`);
-                    // Add your edit logic here
-                  }}
+                  onEdit={() => handleOpenTaskDialog(task)}
                   onDelete={() => {
                     dispatch(deleteTask(task.id));
                   }}
@@ -79,20 +103,12 @@ export const TaskCard = ({ data }: TaskCardData) => {
               <Chip label={task.priority} sx={{ mt: 1 }} />
             </CardContent>
             <CardActions>
-              {/* <Button
-              // variant="contained"
-              onClick={() => dispatch(deleteTask(task.id))}
-              size="small"
-            >
-              Learn More
-            </Button> */}
-
               <FormControl fullWidth key={`${task.id}-form-label`}>
                 <InputLabel> Move to:</InputLabel>
                 <Select
                   value={moveList}
                   label="Move to:"
-                  onChange={(event) => handleChange(task.id, event)}
+                  onChange={(event) => handleChangeTaskToList(task.id, event)}
                   className={styles.moveTo}
                 >
                   {otherTaskLists.map((taskList: TaskListType) => (
@@ -106,6 +122,12 @@ export const TaskCard = ({ data }: TaskCardData) => {
           </Card>
         );
       })}
+      <TaskCardDialog
+        onSubmit={handleTaskSubmit}
+        onClose={handleCloseTaskDialog}
+        isOpen={openTaskDialog}
+        initialData={currentTask}
+      />
     </>
   );
 };

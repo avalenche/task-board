@@ -1,15 +1,7 @@
 // src/pages/TaskBoard/components/TaskList/TaskList.tsx
 import { useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Stack,
-  TextField,
-} from "@mui/material";
+import { Button, Stack } from "@mui/material";
 
 import { RootState, useAppDispatch } from "../../../../store";
 import { getTasks, addTask } from "../../../../features/task/taskSlice";
@@ -18,22 +10,21 @@ import {
   getTaskList,
 } from "../../../../features/taskList/taskListSlice";
 import { TaskCard } from "../TaskCard";
-import { Task, TaskListType } from "../../../../types";
+import { TaskListType } from "../../../../types";
 import { PopoverMenu } from "../PopoverMenu";
-
-const priorytyOption = ["Low", "Medium", "Hight"];
+import { TaskCardDialog } from "../TaskCardDialog";
 
 interface TaskListProps {
   onEditTaskList: (taskList: TaskListType) => void;
 }
 
-export const TaskList = ({ onEditTaskList }: TaskListProps) => {
+export const TaskList: React.FC<TaskListProps> = ({ onEditTaskList }) => {
   const dispatch = useAppDispatch();
   const tasksList = useSelector(
     (state: RootState) => state.taskLists.taskLists
   );
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
-  const [openAddTask, setOpenAddTask] = useState(false);
+  const [openTaskDialog, setOpenTaskDialog] = useState(false);
   const [currentTaskListId, setCurrentTaskListId] = useState<number | null>(
     null
   );
@@ -43,30 +34,24 @@ export const TaskList = ({ onEditTaskList }: TaskListProps) => {
     dispatch(getTaskList());
   }, [dispatch]);
 
-  const handleCloseAddTask = () => {
-    setOpenAddTask(false);
+  const handleOpenTaskDialog = (taskListId: number) => {
+    setCurrentTaskListId(taskListId);
+    setOpenTaskDialog(true);
+  };
+
+  const handleCloseTaskDialog = () => {
+    setOpenTaskDialog(false);
     setCurrentTaskListId(null);
   };
 
-  const handleOpenAddTask = (taskListId: number) => {
-    setCurrentTaskListId(taskListId);
-    setOpenAddTask(true);
-  };
-
-  const handleAddNewTask = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleTaskSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = new FormData(event.currentTarget);
     const formJson = Object.fromEntries(formData.entries());
-    dispatch(addTask({ ...formJson, idTaskList: currentTaskListId }));
-    handleCloseAddTask();
-  };
-
-  const newTask: Omit<Task, "id" & "idTaskList"> = {
-    name: "Add new menu",
-    description:
-      "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing",
-    dueDate: "2024-08-21",
-    priority: "Medium",
+    if (currentTaskListId !== null) {
+      dispatch(addTask({ ...formJson, idTaskList: currentTaskListId }));
+      handleCloseTaskDialog();
+    }
   };
 
   return (
@@ -88,18 +73,14 @@ export const TaskList = ({ onEditTaskList }: TaskListProps) => {
                   id={list.id}
                   onEdit={() => onEditTaskList(list)}
                   onDelete={() => dispatch(deleteTaskList(list.id))}
-                  onAdd={
-                    () => handleOpenAddTask(list.id)
-                    // dispatch(addTask({ ...newTask, idTaskList: list.id }))
-                  }
+                  onAdd={() => handleOpenTaskDialog(list.id)}
                 />
               </div>
             </div>
             <Button
               variant="outlined"
               onClick={() => {
-                handleOpenAddTask(list.id);
-                // dispatch(addTask({ ...newTask, idTaskList: list.id }));
+                handleOpenTaskDialog(list.id);
               }}
             >
               Add new Card
@@ -111,71 +92,11 @@ export const TaskList = ({ onEditTaskList }: TaskListProps) => {
           </Stack>
         ))}
       </Stack>
-      <Dialog
-        open={openAddTask}
-        onClose={handleCloseAddTask}
-        PaperProps={{
-          component: "form",
-          onSubmit: handleAddNewTask,
-        }}
-      >
-        <DialogTitle>Please add new Task</DialogTitle>
-        <DialogContent>
-          <TextField
-            size="small"
-            autoFocus
-            required
-            margin="dense"
-            id="name"
-            name="name"
-            label="Task Name"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            size="small"
-            margin="dense"
-            id="description"
-            name="description"
-            label="Description"
-            type="text"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            required
-            margin="dense"
-            id="dueDate"
-            name="dueDate"
-            type="date"
-            fullWidth
-            variant="standard"
-          />
-          <TextField
-            id="priority"
-            select
-            fullWidth
-            name="priority"
-            defaultValue="Low"
-            size="small"
-            SelectProps={{
-              native: true,
-            }}
-            helperText="Please select priority"
-          >
-            {priorytyOption.map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </TextField>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseAddTask}>Cancel</Button>
-          <Button type="submit">Add new list</Button>
-        </DialogActions>
-      </Dialog>
+      <TaskCardDialog
+        onSubmit={handleTaskSubmit}
+        onClose={handleCloseTaskDialog}
+        isOpen={openTaskDialog}
+      />
     </>
   );
 };
