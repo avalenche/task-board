@@ -88,7 +88,7 @@ export const PopoverMenu = ({
             </Button>
           )}
           <Button
-            disabled={isTasks}
+            disabled={onAdd && isTasks}
             onClick={onDelete}
             size="small"
             sx={{

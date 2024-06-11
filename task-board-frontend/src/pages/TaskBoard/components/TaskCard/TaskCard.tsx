@@ -42,12 +42,6 @@ export const TaskCard = ({ data }: TaskCardData) => {
     const newTaskListId = +event.target.value;
     setMoveList("");
     dispatch(updateTask({ id: taskId, idTaskList: newTaskListId }))
-      .then((response) => {
-        console.log("Task updated successfully", response);
-      })
-      .catch((error) => {
-        console.error("Error updating task:", error);
-      });
   };
   return (
     <>
